@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const userRouter = require("./modules/users/user.api");
 const productRouter = require("./modules/products/product.api");
+const cartRouter = require("./modules/cart/cart.api");
 const errorHandler = require("./middleware/errorHandler");
 const mongoose = require("mongoose");
 const PORT = process.env.PORT;
@@ -13,6 +14,7 @@ mongoose.connect(DB_URL).then(() => {
 app.use(express.json());
 app.use("/user", userRouter);
 app.use("/product", productRouter);
+app.use("/cart", cartRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => {
