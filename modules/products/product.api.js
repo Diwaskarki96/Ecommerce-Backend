@@ -37,4 +37,29 @@ router.get("/details/:id", isUser, isValidMongoId, async (req, res, next) => {
   }
 });
 
+router.delete(
+  "/delete/:id",
+  isSeller,
+  isValidMongoId,
+  async (req, res, next) => {
+    try {
+      const productId = req.params.id;
+
+      const product = await productController.findId({ id: productId });
+      if (!product) throw new Error("Product does not exist");
+
+      const sellerId = product.sellerId;
+      const loggedInUserId = req.loggedInUserId;
+
+      const isOwnerOfProduct = sellerId.equals(loggedInUserId);
+      if (!isOwnerOfProduct)
+        throw new Error("You are not the owner of this product");
+      const deleteProduct = await productController.remove({ id: productId });
+      res.json({ msg: "success", data: deleteProduct });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
 module.exports = router;
