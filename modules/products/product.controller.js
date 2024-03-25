@@ -7,4 +7,8 @@ const all = async (req, res) => {
   return await productModel.find();
 };
 const remove = async () => {};
-module.exports = { add, remove, all };
+
+const findId = async ({ id }) => {
+  return await productModel.findById({ _id: id });
+};
+module.exports = { add, remove, all, findId };

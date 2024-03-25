@@ -4,7 +4,7 @@ const userController = require("../modules/users/user.controller");
 const isSeller = async (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
-    const splittedValue = authorization.split(" ");
+    const splittedValue = authorization?.split(" ");
     const token = splittedValue?.length === 2 ? splittedValue[1] : undefined;
     if (!token) throw new Error("Unauthorized");
     const payload = jwt.verify(token, "shhhhh");
@@ -21,7 +21,7 @@ const isSeller = async (req, res, next) => {
 const isBuyer = async (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
-    const splittedValue = authorization.split(" ");
+    const splittedValue = authorization?.split(" ");
     const token = splittedValue?.length === 2 ? splittedValue[1] : undefined;
     if (!token) throw new Error("Unauthorized");
     const payload = jwt.verify(token, "shhhhh");
@@ -35,4 +35,20 @@ const isBuyer = async (req, res, next) => {
   }
 };
 
-module.exports = { isBuyer, isSeller };
+const isUser = async (req, res, next) => {
+  try {
+    const authorization = req.headers.authorization;
+    const splittedValue = authorization?.split(" ");
+    const token = splittedValue?.length === 2 ? splittedValue[1] : undefined;
+    if (!token) throw new Error("Unauthorized");
+    const payload = jwt.verify(token, "shhhhh");
+    const user = await userController.findByEmail({ email: payload.email });
+    if (!user) throw new Error("User not found");
+    req.loggedInId = req._id;
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports = { isBuyer, isSeller, isUser };
