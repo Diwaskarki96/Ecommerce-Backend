@@ -2,7 +2,6 @@ const router = require("express").Router();
 const productController = require("./product.controller");
 const productValidation = require("./product.validation");
 const { isSeller, isBuyer, isUser } = require("../../middleware/authorization");
-const { default: mongoose } = require("mongoose");
 const isValidMongoId = require("../../middleware/validateMongoID");
 
 router.get("/all", async (req, res, next) => {
@@ -61,5 +60,31 @@ router.delete(
     }
   }
 );
+
+//edit
+router.put("/edit/:id", isSeller, isValidMongoId, async (req, res, next) => {
+  try {
+    const data = req.body;
+    const validateProduct = await productValidation.validate(data);
+    const productId = req.params.id;
+    const product = await productController.findId({ id: productId });
+    if (!product) throw new Error("Product Does Not Exist!");
+
+    const sellerId = product.sellerId;
+    const loggedInUserId = req.loggedInUserId;
+
+    const isOwnerOfProduct = sellerId.equals(loggedInUserId);
+    if (!isOwnerOfProduct)
+      throw new Error("You are not the owner of this product");
+    const updateProduct = await productController.updateById(
+      productId,
+      validateProduct,
+      { new: true }
+    );
+    res.json({ msg: "success", data: updateProduct });
+  } catch (e) {
+    next(e);
+  }
+});
 
 module.exports = router;

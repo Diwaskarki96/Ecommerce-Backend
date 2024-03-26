@@ -13,4 +13,9 @@ const remove = async ({ id }) => {
 const findId = async ({ id }) => {
   return await productModel.findById({ _id: id });
 };
-module.exports = { add, remove, all, findId };
+
+const updateById = async (id, payload) => {
+  return await productModel.findByIdAndUpdate(id, payload, { new: true });
+};
+
+module.exports = { add, remove, all, findId, updateById };
