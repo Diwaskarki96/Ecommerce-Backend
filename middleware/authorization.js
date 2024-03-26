@@ -28,7 +28,7 @@ const isBuyer = async (req, res, next) => {
     const user = await userController.findByEmail({ email: payload.email });
     if (!user) throw new Error("User not found");
     if (user.role !== "buyer") throw new Error("Unauthorized");
-    req.loggedInId = req._id;
+    req.loggedInUserId = user._id;
     next();
   } catch (e) {
     next(e);
