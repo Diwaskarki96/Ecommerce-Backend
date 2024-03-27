@@ -4,6 +4,8 @@ const addItemToCartValidation = require("./cart.validation");
 const productController = require("../products/product.controller");
 const cartController = require("./cart.controller");
 const cartModel = require("./cart.model");
+const isValidMongoId = require("../../middleware/validateMongoID");
+const productModel = require("../products/product.model");
 
 const router = require("express").Router();
 
@@ -45,5 +47,28 @@ router.delete("/clear", isBuyer, async (req, res, next) => {
     next(e);
   }
 });
+
+//-------delete cart by id-------
+router.delete(
+  "/delete/:id",
+  isBuyer,
+  isValidMongoId,
+  async (req, res, next) => {
+    try {
+      const productId = req.params.id;
+      const product = await productController.findId({ id: productId });
+      if (!product) {
+        return res.status(401).json({ msg: "Product does not exist" });
+      }
+      const deletedCart = await cartModel.deleteOne({
+        buyerId: req.loggedInUserId,
+        productId: productId,
+      });
+      res.json({ msg: "Success", deletedCart });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 module.exports = router;

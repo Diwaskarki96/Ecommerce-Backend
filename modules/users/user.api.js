@@ -2,6 +2,7 @@ const router = require("express").Router();
 const userController = require("./user.controller");
 const { userValidation, loginValidation } = require("./user.validation");
 const jwt = require("jsonwebtoken");
+
 router.post("/register", async (req, res, next) => {
   try {
     const data = req.body;
