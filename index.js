@@ -9,7 +9,7 @@ const mongoose = require("mongoose");
 const PORT = process.env.PORT;
 const DB_URL = process.env.DB_URL;
 mongoose.connect(DB_URL).then(() => {
-  console.log("Database is conneted...");
+  console.log("Database is connected...");
 });
 app.use(express.json());
 app.use("/user", userRouter);
