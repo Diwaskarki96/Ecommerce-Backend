@@ -21,7 +21,6 @@ const userValidation = YUP.object({
     "Gender must be male  or female"
   ),
 });
-
 const loginValidation = YUP.object({
   email: YUP.string()
     .email("Invalid Email")
