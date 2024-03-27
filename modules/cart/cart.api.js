@@ -1,11 +1,15 @@
 const mongoose = require("mongoose");
 const { isBuyer } = require("../../middleware/authorization");
-const addItemToCartValidation = require("./cart.validation");
+const {
+  addItemToCartValidation,
+  updateCartValidation,
+} = require("./cart.validation");
 const productController = require("../products/product.controller");
 const cartController = require("./cart.controller");
 const cartModel = require("./cart.model");
 const isValidMongoId = require("../../middleware/validateMongoID");
 const productModel = require("../products/product.model");
+const validateReqBody = require("../../middleware/reqBodyValidation");
 
 const router = require("express").Router();
 
@@ -65,6 +69,69 @@ router.delete(
         productId: productId,
       });
       res.json({ msg: "Success", deletedCart });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+//----------cart increase and decrease ---------
+router.put(
+  "/edit/:id",
+  isBuyer,
+  isValidMongoId,
+  validateReqBody(updateCartValidation),
+  async (req, res, next) => {
+    try {
+      //extract action form req.body
+      const actionData = req.body;
+
+      //find product
+      const productId = req.params.id;
+      const buyerId = req.loggedInUserId;
+      const product = await productController.findId({ id: productId });
+      if (!product) {
+        return res.status(400).send("Product does not exits");
+      }
+      const productAvailableQuantity = product?.availableQuantity;
+      //find cart
+      const cartItem = await cartModel.findOne({
+        buyerId: buyerId,
+        productId: productId,
+      });
+
+      //if not cart item, throw error
+      if (!cartItem) {
+        return res.status(404).json({ msg: "Cart item does not Exists" });
+      }
+      //previous ordered quantity from cart item
+      let previousOrderedQuantity = cartItem.orderQuantity;
+
+      let newOrderedQuantity;
+
+      if (actionData.action === "inc") {
+        newOrderedQuantity = previousOrderedQuantity + 1;
+      } else {
+        newOrderedQuantity = previousOrderedQuantity - 1;
+      }
+
+      if (newOrderedQuantity < 1) {
+        return res.status(403).json({ msg: "Order quantity cannot be zero" });
+      }
+      if (newOrderedQuantity > productAvailableQuantity) {
+        return res
+          .status(403)
+          .json({ msg: "Product reached available quantity" });
+      }
+      // update cart item with new ordered quantity
+      const incOrDecQuantity = await cartModel.updateOne(
+        {
+          buyerId,
+          productId,
+        },
+        { orderQuantity: newOrderedQuantity }
+      );
+      res.json({ msg: "success", data: incOrDecQuantity });
     } catch (e) {
       next(e);
     }

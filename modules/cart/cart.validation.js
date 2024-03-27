@@ -10,4 +10,4 @@ const addItemToCartValidation = YUP.object({
 const updateCartValidation = YUP.object({
   action: YUP.string().required("Action is required").oneOf(["inc", "dec"]),
 });
-module.exports = addItemToCartValidation;
+module.exports = { addItemToCartValidation, updateCartValidation };
