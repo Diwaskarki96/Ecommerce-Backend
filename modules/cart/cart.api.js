@@ -171,4 +171,6 @@ router.get("/list", isBuyer, async (req, res) => {
   return res.status(200).send({ message: "success", cartData: cartData });
 });
 
+router.put("/");
+
 module.exports = router;
