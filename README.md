@@ -4,7 +4,7 @@ This repository contains the backend code for an E-Commerce application built us
 
 # E-commerce Backend Project Overview:
 
-This project encompasses a robust backend system tailored for an e-commerce platform. Leveraging Node.js and Express.js, the application delivers a suite of essential functionalities including user management, product inventory management, and cart handling.
+This project is about creating a simple, yet powerful, system for an online store. It uses Node.js and Express.js to handle tasks like managing users, keeping track of products, and dealing with shopping carts.
 
 # User API:
 
