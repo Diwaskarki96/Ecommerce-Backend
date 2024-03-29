@@ -3,7 +3,6 @@ const express = require("express");
 const app = express();
 const userRouter = require("./modules/users/user.api");
 const productRouter = require("./modules/products/product.api");
-const orderRouter = require("./modules/order/order.api");
 const cartRouter = require("./modules/cart/cart.api");
 const errorHandler = require("./middleware/errorHandler");
 const mongoose = require("mongoose");
@@ -19,7 +18,6 @@ app.use(express.json());
 app.use("/user", userRouter);
 app.use("/product", productRouter);
 app.use("/cart", cartRouter);
-app.use("/order", orderRouter);
 
 app.use(errorHandler);
 
