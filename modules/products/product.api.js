@@ -95,7 +95,7 @@ router.put("/edit/:id", isSeller, isValidMongoId, async (req, res, next) => {
 
 //list all product by buyer
 router.get(
-  "/productList",
+  "/productList/buyer",
   isBuyer,
   validateReqBody(paginationValidation),
   async (req, res, next) => {
@@ -120,6 +120,36 @@ router.get(
         },
       ]);
       res.json({ msg: "success", data: product });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
+//list all product by seller
+router.get(
+  "/productList/seller",
+  isSeller,
+  validateReqBody(paginationValidation),
+  async (req, res, next) => {
+    try {
+      const { limit, page } = req.body;
+      const skip = (page - 1) * limit;
+      const allProducts = await productModel.aggregate([
+        { $match: { sellerId: req.loggedInUserId } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            sellerId: 0,
+            _id: 0,
+            createdAt: 0,
+            updatedAt: 0,
+            __v: 0,
+          },
+        },
+      ]);
+      res.json({ msg: "success", data: allProducts });
     } catch (e) {
       next(e);
     }
