@@ -45,4 +45,12 @@ const productValidation = YUP.object({
   image: YUP.string(),
 });
 
-module.exports = productValidation;
+const paginationValidation = YUP.object({
+  page: YUP.number()
+    .required("Page is required")
+    .min(1, "Page must be atleast 1")
+    .positive(),
+  limit: YUP.number().required("Limit is required").positive(),
+});
+
+module.exports = { productValidation, paginationValidation };

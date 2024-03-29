@@ -1,8 +1,13 @@
 const router = require("express").Router();
 const productController = require("./product.controller");
-const productValidation = require("./product.validation");
+const {
+  productValidation,
+  paginationValidation,
+} = require("./product.validation");
 const { isSeller, isBuyer, isUser } = require("../../middleware/authorization");
 const isValidMongoId = require("../../middleware/validateMongoID");
+const productModel = require("./product.model");
+const validateReqBody = require("../../middleware/reqBodyValidation");
 
 router.get("/all", async (req, res, next) => {
   try {
@@ -12,6 +17,7 @@ router.get("/all", async (req, res, next) => {
     next(e);
   }
 });
+
 router.post("/add", isSeller, async (req, res, next) => {
   try {
     const newProduct = req.body;
@@ -87,4 +93,36 @@ router.put("/edit/:id", isSeller, isValidMongoId, async (req, res, next) => {
   }
 });
 
+//list all product by buyer
+router.get(
+  "/productList",
+  isBuyer,
+  validateReqBody(paginationValidation),
+  async (req, res, next) => {
+    try {
+      const { limit, page } = req.body;
+      const skip = (page - 1) * limit;
+
+      const product = await productModel.aggregate([
+        { $match: {} },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            name: 1,
+            band: 1,
+            price: 1,
+            category: 1,
+            freeShipping: 1,
+            availableQuantity: 1,
+            image: 1,
+          },
+        },
+      ]);
+      res.json({ msg: "success", data: product });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 module.exports = router;
