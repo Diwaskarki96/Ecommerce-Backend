@@ -138,4 +138,37 @@ router.put(
   }
 );
 
+//--------------view all carts including pagination-------
+router.get("/list", isBuyer, async (req, res) => {
+  // extract buyerId from req.loggedInUserId
+  const buyerId = req.loggedInUserId;
+
+  const cartData = await Cart.aggregate([
+    {
+      $match: {
+        buyerId: buyerId,
+      },
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "productId",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $project: {
+        name: { $first: "$productDetails.name" },
+        brand: { $first: "$productDetails.brand" },
+        unitPrice: { $first: "$productDetails.price" },
+        image: { $first: "$productDetails.image" },
+        orderedQuantity: 1,
+      },
+    },
+  ]);
+
+  return res.status(200).send({ message: "success", cartData: cartData });
+});
+
 module.exports = router;
