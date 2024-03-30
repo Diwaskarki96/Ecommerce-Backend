@@ -23,9 +23,13 @@ router.post("/login", async (req, res, next) => {
     const data = req.body;
     const validateData = await loginValidation.validate(data);
     const user = await userController.login(validateData);
-    const token = jwt.sign({ email: validateData.email }, "shhhhh", {
-      expiresIn: "1hr",
-    });
+    const token = jwt.sign(
+      { email: validateData.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_DURATION,
+      }
+    );
     res.send({ msg: "success", data: user, token });
   } catch (e) {
     next(e);

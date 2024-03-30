@@ -2,7 +2,7 @@ const userModel = require("./user.model");
 const bcrypt = require("bcryptjs");
 
 const register = async (payload) => {
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(process.env.SALT_URL);
   payload.password = await bcrypt.hash(payload.password, salt);
   return await userModel.create(payload);
 };
